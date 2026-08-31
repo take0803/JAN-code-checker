@@ -10,10 +10,7 @@
 
 <title>JANチェッカー</title>
 
-
-<!-- JANバーコード読み取りライブラリ -->
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
 
 <style>
 
@@ -21,534 +18,280 @@
     box-sizing: border-box;
 }
 
-
 body {
-
     margin: 0;
-
     font-family:
         -apple-system,
         BlinkMacSystemFont,
         "Helvetica Neue",
         Arial,
         sans-serif;
-
     background: #f2f4f7;
-
     color: #111827;
-
 }
-
 
 header {
-
     background: #111827;
-
     color: white;
-
     text-align: center;
-
     font-size: 30px;
-
     font-weight: bold;
-
     padding: 25px 10px;
-
 }
-
 
 main {
-
     max-width: 900px;
-
     margin: auto;
-
     padding: 15px;
-
 }
-
 
 .card {
-
     background: white;
-
     border-radius: 18px;
-
     padding: 20px;
-
     margin-bottom: 18px;
-
-    box-shadow:
-        0 4px 15px rgba(0,0,0,0.08);
-
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
 }
-
 
 h2 {
-
     margin-top: 0;
-
     font-size: 22px;
-
 }
-
-
-/* =========================
-   CSVボタン
-========================= */
 
 .file-button {
-
     display: block;
-
     background: #2949a8;
-
     color: white;
-
     text-align: center;
-
     font-size: 19px;
-
     font-weight: bold;
-
     padding: 18px;
-
     border-radius: 14px;
-
     cursor: pointer;
-
 }
-
 
 .file-button input {
-
     display: none;
-
 }
-
 
 .status {
-
     margin-top: 12px;
-
     padding: 12px;
-
     background: #f3f4f6;
-
     border-radius: 10px;
-
     font-size: 14px;
-
-    line-height: 1.6;
-
+    line-height: 1.7;
 }
-
 
 .description {
-
     margin-top: 10px;
-
     color: #6b7280;
-
     font-size: 13px;
-
-    line-height: 1.6;
-
+    line-height: 1.7;
 }
-
-
-/* =========================
-   ボタン
-========================= */
 
 button {
-
     width: 100%;
-
     border: none;
-
     border-radius: 14px;
-
     padding: 17px;
-
     margin-top: 10px;
-
     font-size: 19px;
-
     font-weight: bold;
-
     color: white;
-
     background: #111827;
-
     cursor: pointer;
-
 }
-
 
 button:disabled {
-
     opacity: 0.5;
-
 }
-
 
 .stop {
-
     background: #6b7280;
-
 }
-
 
 .clear-button {
-
     background: #6b7280;
-
 }
-
-
-/* =========================
-   カメラ
-========================= */
 
 #reader {
-
     width: 100%;
-
     max-width: 600px;
-
     margin: 0 auto 15px;
-
     display: none;
-
 }
-
-
-/* =========================
-   結果
-========================= */
 
 .result {
-
     margin-top: 15px;
-
     border-radius: 14px;
-
     padding: 18px;
-
     text-align: center;
-
     font-weight: bold;
-
     font-size: 20px;
-
 }
-
 
 .result.neutral {
-
     background: #f3f4f6;
-
     color: #374151;
-
 }
-
 
 .result.success {
-
     background: #dcfce7;
-
     color: #15803d;
-
 }
-
 
 .result.error {
-
     background: #fee2e2;
-
     color: #b91c1c;
-
 }
-
 
 .jan {
-
     font-size: 26px;
-
     margin-top: 8px;
-
+    word-break: break-all;
 }
-
 
 .product {
-
     margin-top: 8px;
-
     font-size: 16px;
-
     font-weight: normal;
-
+    word-break: break-word;
 }
-
-
-/* =========================
-   集計
-========================= */
 
 .stats {
-
     display: grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
-
     margin-bottom: 15px;
-
 }
-
 
 .stat {
-
     text-align: center;
-
     padding: 13px 5px;
-
     background: #f3f4f6;
-
     border-radius: 12px;
-
 }
-
 
 .num {
-
     font-size: 24px;
-
     font-weight: bold;
-
 }
-
 
 .lab {
-
     font-size: 12px;
-
     color: #6b7280;
-
     margin-top: 4px;
-
 }
-
-
-/* =========================
-   履歴
-========================= */
 
 .history-actions {
-
     display: grid;
-
-    grid-template-columns:
-        1fr 1fr;
-
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
-
     margin-bottom: 15px;
-
 }
-
 
 .history-actions button {
-
     margin-top: 0;
-
 }
-
 
 .empty {
-
     text-align: center;
-
     color: #6b7280;
-
     padding: 25px 10px;
-
 }
-
 
 .history {
-
     display: flex;
-
     flex-direction: column;
-
     gap: 10px;
-
 }
-
 
 .history-row {
-
     padding: 15px;
-
     border-radius: 13px;
-
     border-left: 7px solid;
-
 }
-
 
 .history-ok {
-
     background: #ecfdf5;
-
     border-left-color: #16a34a;
-
 }
-
 
 .history-ng {
-
     background: #fef2f2;
-
     border-left-color: #dc2626;
-
 }
-
 
 .history-top {
-
     display: flex;
-
-    justify-content:
-        space-between;
-
+    justify-content: space-between;
     align-items: center;
-
     margin-bottom: 7px;
-
 }
-
 
 .history-no {
-
     color: #6b7280;
-
     font-weight: bold;
-
 }
-
 
 .history-status {
-
     font-weight: bold;
-
 }
-
 
 .history-ok .history-status {
-
     color: #15803d;
-
 }
-
 
 .history-ng .history-status {
-
     color: #b91c1c;
-
 }
-
 
 .history-name {
-
     font-size: 17px;
-
     font-weight: bold;
-
     margin-bottom: 6px;
-
     word-break: break-word;
-
 }
-
 
 .history-detail {
-
     color: #4b5563;
-
     font-size: 14px;
-
     line-height: 1.7;
-
     word-break: break-word;
-
 }
-
-
-/* =========================
-   スマートフォン
-========================= */
 
 @media (max-width: 600px) {
 
     header {
-
         font-size: 27px;
-
         padding: 23px 10px;
-
     }
-
 
     main {
-
         padding: 10px;
-
     }
-
 
     .card {
-
         padding: 17px;
-
         border-radius: 15px;
-
     }
-
 
     h2 {
-
         font-size: 21px;
-
     }
-
 
     .stats {
-
-        grid-template-columns:
-            repeat(2, 1fr);
-
+        grid-template-columns: repeat(2, 1fr);
     }
-
 
     .history-actions {
-
-        grid-template-columns:
-            1fr;
-
+        grid-template-columns: 1fr;
     }
-
 
     .jan {
-
         font-size: 23px;
-
     }
-
 }
 
 </style>
@@ -560,9 +303,7 @@ button:disabled {
 
 
 <header>
-
 JANチェッカー
-
 </header>
 
 
@@ -570,16 +311,13 @@ JANチェッカー
 
 
 <!-- ==================================================
-     CSVマスタ
+     CSV読み込み
 ================================================== -->
 
 <div class="card">
 
-
 <h2>
-
 ① JANマスタを読み込む
-
 </h2>
 
 
@@ -600,53 +338,44 @@ CSVファイルを選択
     id="csvStatus"
     class="status"
 >
-
 CSVが選択されていません
-
 </div>
 
 
 <div class="description">
 
-CSVの形式：
+<strong>CSV形式</strong>
 
 <br>
 
-<strong>1行目：</strong>
-登録名称
+1行目：項目名
 
 <br>
 
-<strong>D列：</strong>
-商品名称
+<strong>D列：商品名称</strong>
 
 <br>
 
-<strong>O列：</strong>
-JANコード
+<strong>O列：JANコード</strong>
 
 <br><br>
 
-O列のJANコードを基準に照合します。
+※ O列のJANコードだけをマスタとして使用します。
 
 </div>
-
 
 </div>
 
 
 
 <!-- ==================================================
-     JAN読み取り
+     カメラ
 ================================================== -->
 
 <div class="card">
 
-
 <h2>
-
 ② JANコードをスキャン
-
 </h2>
 
 
@@ -657,9 +386,7 @@ O列のJANコードを基準に照合します。
     id="start"
     disabled
 >
-
 📷 カメラを起動
-
 </button>
 
 
@@ -668,9 +395,7 @@ O列のJANコードを基準に照合します。
     class="stop"
     style="display:none"
 >
-
 カメラを停止
-
 </button>
 
 
@@ -678,46 +403,31 @@ O列のJANコードを基準に照合します。
     id="result"
     class="result neutral"
 >
-
 CSVを読み込んでください
-
 </div>
-
-
-<div
-    id="debug"
-    class="debug"
-></div>
-
 
 </div>
 
 
 
 <!-- ==================================================
-     読み取り履歴
+     履歴
 ================================================== -->
 
 <div class="card">
 
-
 <h2>
-
 ③ 読み取り履歴
-
 </h2>
 
 
 <div class="history-actions">
 
-
 <button
     id="downloadCsv"
     disabled
 >
-
 📥 結果をCSV保存
-
 </button>
 
 
@@ -725,17 +435,12 @@ CSVを読み込んでください
     id="clearHistory"
     class="clear-button"
 >
-
 履歴をクリア
-
 </button>
-
 
 </div>
 
 
-
-<!-- 集計 -->
 
 <div class="stats">
 
@@ -756,7 +461,6 @@ CSVを読み込んでください
 </div>
 
 
-
 <div class="stat">
 
 <div
@@ -773,7 +477,6 @@ CSVを読み込んでください
 </div>
 
 
-
 <div class="stat">
 
 <div
@@ -788,7 +491,6 @@ CSVを読み込んでください
 </div>
 
 </div>
-
 
 
 <div class="stat">
@@ -814,9 +516,7 @@ CSVを読み込んでください
     id="historyEmpty"
     class="empty"
 >
-
 まだ読み取り履歴はありません
-
 </div>
 
 
@@ -841,51 +541,137 @@ CSVを読み込んでください
 ================================================== */
 
 
+/*
+   JANマスタ
+
+   key   = JANコード
+   value = 商品情報
+*/
+
 let janMaster = new Map();
 
+
+/*
+   読み取り履歴
+*/
 
 let history = [];
 
 
-let scanner = null;
+/*
+   カメラ
+*/
 
+let scanner = null;
 
 let scanning = false;
 
 
-let lastCode = "";
+/*
+   同一コード連続読み取り防止
+*/
 
+let lastCode = "";
 
 let lastTime = 0;
 
 
 /*
-   CSVの1行目
-   登録名称
+   CSVの見出し
 */
 
-let registeredName = "";
+let headerRow = [];
 
 
 
 /* ==================================================
-   JANコードを正規化
+   JANコード正規化
 ================================================== */
 
 function normalizeJAN(value) {
 
 
-    let s =
-        String(value ?? "")
-        .trim()
-        .replace(/"/g, "")
-        .replace(/\s/g, "");
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return null;
+
+    }
 
 
     /*
-       Excelで
+       文字列として取得
+
+       ★数値に変換しない
+       ★先頭0を維持
+    */
+
+    let s =
+        String(value);
+
+
+    /*
+       BOM
+    */
+
+    s =
+        s.replace(
+            /^\uFEFF/,
+            ""
+        );
+
+
+    /*
+       前後空白
+    */
+
+    s =
+        s.trim();
+
+
+    /*
+       ダブルクォート
+    */
+
+    s =
+        s.replace(
+            /^"(.*)"$/,
+            "$1"
+        );
+
+
+    /*
+       全角スペース
+    */
+
+    s =
+        s.replace(
+            /　/g,
+            ""
+        );
+
+
+    /*
+       通常スペース
+    */
+
+    s =
+        s.replace(
+            /\s/g,
+            ""
+        );
+
+
+    /*
+       Excel由来の
+
        4901234567890.0
-       になっている場合
+
+       に対応
+
+       ※指数表記にはしない
     */
 
     if (
@@ -936,7 +722,6 @@ function normalizeJAN(value) {
 
 function escapeHtml(value) {
 
-
     return String(value ?? "")
 
         .replace(
@@ -969,7 +754,6 @@ function escapeHtml(value) {
 
 function escapeCSV(value) {
 
-
     return '"' +
 
         String(value ?? "")
@@ -993,17 +777,14 @@ function setResult(
     className
 ) {
 
-
     const element =
         document.getElementById(
             "result"
         );
 
-
     element.className =
         "result " +
         className;
-
 
     element.innerHTML =
         text;
@@ -1013,109 +794,86 @@ function setResult(
 
 
 /* ==================================================
-   CSVファイル読み込み
+   CSV文字コード判定
 ================================================== */
 
-function readCSVFile(file) {
+async function decodeCSVFile(file) {
 
 
-    return new Promise(
-        function(resolve, reject) {
+    const buffer =
+        await file.arrayBuffer();
 
 
-            const reader =
-                new FileReader();
+    const bytes =
+        new Uint8Array(
+            buffer
+        );
 
 
-            reader.onload =
-                function(event) {
+    /*
+       UTF-8 BOM確認
+    */
+
+    const hasUtf8Bom =
+
+        bytes.length >= 3 &&
+
+        bytes[0] === 0xEF &&
+
+        bytes[1] === 0xBB &&
+
+        bytes[2] === 0xBF;
 
 
-                    const bytes =
-                        new Uint8Array(
-                            event.target.result
-                        );
+    /*
+       UTF-8 BOMがあればUTF-8
+    */
+
+    if (
+        hasUtf8Bom
+    ) {
+
+        return new TextDecoder(
+            "utf-8"
+        ).decode(
+            bytes
+        );
+
+    }
 
 
-                    let text;
+    /*
+       UTF-8として正常に
+       デコードできるか確認
+    */
 
+    try {
 
-                    /*
-                       UTF-8
-                    */
+        return new TextDecoder(
+            "utf-8",
+            {
+                fatal: true
+            }
+        ).decode(
+            bytes
+        );
 
-                    try {
+    }
 
+    catch (error) {
 
-                        text =
-                            new TextDecoder(
-                                "utf-8",
-                                {
-                                    fatal: true
-                                }
-                            ).decode(
-                                bytes
-                            );
+        /*
+           今回のCSVなど
+           Shift-JIS / CP932
+        */
 
+        return new TextDecoder(
+            "shift-jis"
+        ).decode(
+            bytes
+        );
 
-                    }
-
-                    catch (error) {
-
-
-                        /*
-                           Shift-JIS
-                        */
-
-                        try {
-
-
-                            text =
-                                new TextDecoder(
-                                    "shift-jis"
-                                ).decode(
-                                    bytes
-                                );
-
-
-                        }
-
-                        catch (error2) {
-
-
-                            text =
-                                new TextDecoder(
-                                    "utf-8"
-                                ).decode(
-                                    bytes
-                                );
-
-                        }
-
-                    }
-
-
-                    resolve(text);
-
-                };
-
-
-            reader.onerror =
-                function() {
-
-                    reject(
-                        reader.error
-                    );
-
-                };
-
-
-            reader.readAsArrayBuffer(
-                file
-            );
-
-        }
-    );
+    }
 
 }
 
@@ -1128,10 +886,6 @@ function readCSVFile(file) {
 function parseCSV(text) {
 
 
-    /*
-       BOM削除
-    */
-
     text =
         text.replace(
             /^\uFEFF/,
@@ -1143,7 +897,6 @@ function parseCSV(text) {
 
 
     let row = [];
-
 
     let cell = "";
 
@@ -1180,16 +933,13 @@ function parseCSV(text) {
                 text[i + 1] === '"'
             ) {
 
-
                 cell += '"';
 
                 i++;
 
-
             }
 
             else {
-
 
                 quoted =
                     !quoted;
@@ -1209,7 +959,9 @@ function parseCSV(text) {
         ) {
 
 
-            row.push(cell);
+            row.push(
+                cell
+            );
 
             cell = "";
 
@@ -1230,7 +982,7 @@ function parseCSV(text) {
 
 
             /*
-               CRLF対応
+               CRLF
             */
 
             if (
@@ -1243,11 +995,18 @@ function parseCSV(text) {
             }
 
 
-            row.push(cell);
+            row.push(
+                cell
+            );
 
-            rows.push(row);
+
+            rows.push(
+                row
+            );
+
 
             row = [];
+
 
             cell = "";
 
@@ -1255,7 +1014,6 @@ function parseCSV(text) {
 
 
         else {
-
 
             cell += c;
 
@@ -1265,7 +1023,7 @@ function parseCSV(text) {
 
 
     /*
-       最後のセル
+       最終行
     */
 
     if (
@@ -1273,10 +1031,13 @@ function parseCSV(text) {
         row.length > 0
     ) {
 
+        row.push(
+            cell
+        );
 
-        row.push(cell);
-
-        rows.push(row);
+        rows.push(
+            row
+        );
 
     }
 
@@ -1288,7 +1049,7 @@ function parseCSV(text) {
 
 
 /* ==================================================
-   CSV選択
+   CSV読み込み
 ================================================== */
 
 document
@@ -1313,11 +1074,11 @@ document
 
 
             /*
-               CSV読み込み
+               CSVを文字列化
             */
 
             const text =
-                await readCSVFile(
+                await decodeCSVFile(
                     file
                 );
 
@@ -1327,13 +1088,14 @@ document
             */
 
             const rows =
-                parseCSV(text);
+                parseCSV(
+                    text
+                );
 
 
             if (
                 rows.length < 2
             ) {
-
 
                 throw new Error(
                     "CSVにデータがありません。"
@@ -1343,14 +1105,22 @@ document
 
 
             /*
-               マスタをクリア
+               ヘッダー保存
+            */
+
+            headerRow =
+                rows[0];
+
+
+            /*
+               マスタ初期化
             */
 
             janMaster.clear();
 
 
             /*
-               履歴をクリア
+               履歴初期化
             */
 
             history = [];
@@ -1361,33 +1131,47 @@ document
             lastTime = 0;
 
 
-            /* --------------------------------------
-               1行目
 
-               登録名称
-            -------------------------------------- */
+            /* ==========================================
+               列番号
 
-            registeredName =
-                String(
-                    rows[0][0] ?? ""
-                ).trim();
+               A = 0
+               B = 1
+               C = 2
+               D = 3
 
+               ...
 
-            if (
-                registeredName === ""
-            ) {
+               O = 14
+            ========================================== */
 
 
-                registeredName =
-                    "登録名称";
-
-            }
+            const PRODUCT_NAME_COLUMN =
+                3;
 
 
+            const JAN_COLUMN =
+                14;
 
-            /* --------------------------------------
-               2行目以降
-            -------------------------------------- */
+
+
+            /*
+               データ件数
+            */
+
+            let dataRows = 0;
+
+
+            /*
+               JANが入っている件数
+            */
+
+            let validJanRows = 0;
+
+
+            /*
+               2行目から処理
+            */
 
             for (
                 let i = 1;
@@ -1401,39 +1185,69 @@ document
 
 
                 /*
+                   完全な空行を除外
+                */
+
+                if (
+                    row.every(
+                        function(value) {
+
+                            return String(
+                                value ?? ""
+                            ).trim() === "";
+
+                        }
+                    )
+                ) {
+
+                    continue;
+
+                }
+
+
+                dataRows++;
+
+
+                /*
                    D列
 
-                   A = 0
-                   B = 1
-                   C = 2
-                   D = 3
-
-                   ★商品名称
+                   商品名称
                 */
 
                 const productName =
                     String(
-                        row[3] ?? ""
+                        row[
+                            PRODUCT_NAME_COLUMN
+                        ] ?? ""
                     ).trim();
 
 
                 /*
                    O列
 
-                   O = 14
+                   JANコード
 
-                   ★JANコード
+                   ★文字列のまま取得
+                */
+
+                const rawJan =
+                    row[
+                        JAN_COLUMN
+                    ];
+
+
+                /*
+                   JAN正規化
                 */
 
                 const jan =
                     normalizeJAN(
-                        row[14]
+                        rawJan
                     );
 
 
                 /*
-                   JANでなければ
-                  読み飛ばす
+                   JANでない場合
                 */
 
                 if (!jan) {
@@ -1443,10 +1257,14 @@ document
                 }
 
 
+                validJanRows++;
+
+
                 /*
                    同じJANが
-                   マスタ内に複数あっても
-                   1件として登録
+                   複数登録されている場合
+
+                   最初のものを使用
                 */
 
                 if (
@@ -1459,9 +1277,6 @@ document
                         jan,
 
                         {
-
-                            registeredName:
-                                registeredName,
 
                             productName:
                                 productName,
@@ -1479,56 +1294,73 @@ document
 
 
 
-            /* --------------------------------------
-               登録JAN件数
-            -------------------------------------- */
+            /* ==========================================
+               件数表示
+            ========================================== */
 
             document
-            .getElementById("total")
+            .getElementById(
+                "total"
+            )
             .textContent =
                 janMaster.size
                 .toLocaleString();
 
 
 
-            /* --------------------------------------
-               CSV読み込み表示
-            -------------------------------------- */
+            /*
+               CSV読み込み結果
+            */
 
             document
-            .getElementById("csvStatus")
+            .getElementById(
+                "csvStatus"
+            )
             .innerHTML =
 
-                "読み込み完了：" +
+                "<strong>読み込み完了</strong>" +
 
-                janMaster.size
-                .toLocaleString() +
+                "<br>" +
+
+                "CSVデータ行数：" +
+
+                dataRows.toLocaleString() +
 
                 "件" +
 
                 "<br>" +
 
-                "登録名称：" +
+                "JAN有効行数：" +
 
-                escapeHtml(
-                    registeredName
-                );
+                validJanRows.toLocaleString() +
+
+                "件" +
+
+                "<br>" +
+
+                "登録JAN件数：" +
+
+                janMaster.size.toLocaleString() +
+
+                "件";
 
 
 
-            /* --------------------------------------
-               カメラボタン
-            -------------------------------------- */
+            /*
+               カメラ有効化
+            */
 
             document
-            .getElementById("start")
+            .getElementById(
+                "start"
+            )
             .disabled =
                 janMaster.size === 0;
 
 
 
             /*
-               履歴更新
+               履歴表示
             */
 
             renderHistory();
@@ -1555,7 +1387,7 @@ document
 
                 setResult(
 
-                    "O列に有効なJANコードがありません",
+                    "O列から有効なJANコードを読み込めませんでした",
 
                     "error"
 
@@ -1578,11 +1410,15 @@ document
             .getElementById(
                 "csvStatus"
             )
-            .textContent =
+            .innerHTML =
 
-                "CSV読み込みエラー：" +
+                "<strong>CSV読み込みエラー</strong>" +
 
-                error.message;
+                "<br>" +
+
+                escapeHtml(
+                    error.message
+                );
 
 
             setResult(
@@ -1622,10 +1458,6 @@ async function startCamera() {
     }
 
 
-    /*
-       読み取りライブラリ確認
-    */
-
     if (
         !window.Html5Qrcode
     ) {
@@ -1645,10 +1477,6 @@ async function startCamera() {
     }
 
 
-    /*
-       HTTPS確認
-    */
-
     if (
         !window.isSecureContext
     ) {
@@ -1667,10 +1495,6 @@ async function startCamera() {
 
     }
 
-
-    /*
-       カメラ確認
-    */
 
     if (
         !navigator.mediaDevices ||
@@ -1764,8 +1588,7 @@ async function startCamera() {
 
 
         /*
-           iPhoneでは
-           背面カメラを使用
+           背面カメラ
         */
 
         await scanner.start(
@@ -1811,7 +1634,6 @@ async function startCamera() {
 
 
         try {
-
 
             if (scanner) {
 
@@ -1954,7 +1776,7 @@ document
 
 
 /* ==================================================
-   JAN読み取り成功
+   JAN読み取り
 ================================================== */
 
 function onScanSuccess(
@@ -1970,8 +1792,7 @@ function onScanSuccess(
 
 
     /*
-       JANコードとして
-       正規化
+       カメラから取得したJAN
     */
 
     const jan =
@@ -1992,9 +1813,8 @@ function onScanSuccess(
 
 
     /*
-       同じJANが
-       カメラに連続して映った場合
-       1.5秒以内は無視
+       同じJANがカメラに
+       連続して映った場合は無視
     */
 
     if (
@@ -2014,12 +1834,9 @@ function onScanSuccess(
 
 
     /*
-       ============================================
-       ★重要
-
-       履歴に同じJANがある場合
-       2回目以降はカウントしない
-       ============================================
+       ==========================================
+       ★同じJANはカウントしない
+       ==========================================
     */
 
     const alreadyScanned =
@@ -2043,7 +1860,9 @@ function onScanSuccess(
 
             "<div class='jan'>" +
 
-            escapeHtml(jan) +
+            escapeHtml(
+                jan
+            ) +
 
             "</div>",
 
@@ -2068,10 +1887,6 @@ function onScanSuccess(
         );
 
 
-    /*
-       登録あり / なし
-    */
-
     const registered =
         !!master;
 
@@ -2095,14 +1910,9 @@ function onScanSuccess(
             ),
 
 
-        registeredName:
-            master
-                ? master.registeredName
-                : "",
-
-
         /*
-           ★D列の商品名称
+           マスタに登録されている
+           商品名称
         */
 
         productName:
@@ -2112,7 +1922,7 @@ function onScanSuccess(
 
 
         /*
-           ★O列のJAN
+           読み取ったJAN
         */
 
         jan:
@@ -2128,7 +1938,7 @@ function onScanSuccess(
 
 
     /*
-       履歴へ追加
+       履歴追加
     */
 
     history.push(
@@ -2137,16 +1947,16 @@ function onScanSuccess(
 
 
     /*
-       履歴表示更新
+       履歴表示
     */
 
     renderHistory();
 
 
 
-    /* ------------------------------------------
+    /* ==========================================
        登録あり
-    ------------------------------------------ */
+    ========================================== */
 
     if (
         registered
@@ -2159,7 +1969,9 @@ function onScanSuccess(
 
             "<div class='jan'>" +
 
-            escapeHtml(jan) +
+            escapeHtml(
+                jan
+            ) +
 
             "</div>" +
 
@@ -2168,10 +1980,8 @@ function onScanSuccess(
             "商品名称：" +
 
             escapeHtml(
-
                 master.productName ||
                 "—"
-
             ) +
 
             "</div>",
@@ -2183,9 +1993,9 @@ function onScanSuccess(
     }
 
 
-    /* ------------------------------------------
+    /* ==========================================
        登録なし
-    ------------------------------------------ */
+    ========================================== */
 
     else {
 
@@ -2196,7 +2006,9 @@ function onScanSuccess(
 
             "<div class='jan'>" +
 
-            escapeHtml(jan) +
+            escapeHtml(
+                jan
+            ) +
 
             "</div>",
 
@@ -2218,7 +2030,7 @@ function renderHistory() {
 
 
     /*
-       登録あり件数
+       登録あり
     */
 
     const ok =
@@ -2233,7 +2045,7 @@ function renderHistory() {
 
 
     /*
-       登録なし件数
+       登録なし
     */
 
     const ng =
@@ -2248,10 +2060,6 @@ function renderHistory() {
 
 
 
-    /*
-       読み取り件数
-    */
-
     document
     .getElementById(
         "scanned"
@@ -2261,11 +2069,6 @@ function renderHistory() {
         .toLocaleString();
 
 
-
-    /*
-       登録あり
-    */
-
     document
     .getElementById(
         "ok"
@@ -2274,11 +2077,6 @@ function renderHistory() {
         ok.toLocaleString();
 
 
-
-    /*
-       登録なし
-    */
-
     document
     .getElementById(
         "ng"
@@ -2286,11 +2084,6 @@ function renderHistory() {
     .textContent =
         ng.toLocaleString();
 
-
-
-    /*
-       CSV保存ボタン
-    */
 
     document
     .getElementById(
@@ -2313,10 +2106,6 @@ function renderHistory() {
         );
 
 
-
-    /*
-       履歴なし
-    */
 
     if (
         history.length === 0
@@ -2342,7 +2131,7 @@ function renderHistory() {
 
 
     /*
-       新しい順に表示
+       新しいものを上に表示
     */
 
     area.innerHTML =
@@ -2397,8 +2186,10 @@ function renderHistory() {
 
     <div class="history-name">
 
+        商品名称：
+
         ${escapeHtml(
-            item.registeredName ||
+            item.productName ||
             "—"
         )}
 
@@ -2407,17 +2198,6 @@ function renderHistory() {
 
 
     <div class="history-detail">
-
-
-        商品名称：
-
-        ${escapeHtml(
-            item.productName ||
-            "—"
-        )}
-
-
-        <br>
 
 
         JAN：
@@ -2476,10 +2256,9 @@ document
 
 
         /*
-           保存するCSVの項目
+           結果CSV
 
-           ★商品コードではなく
-           ★商品名称
+           商品コードは使用しない
         */
 
         const rows = [
@@ -2490,8 +2269,6 @@ document
                 "No",
 
                 "読み取り日時",
-
-                "登録名称",
 
                 "商品名称",
 
@@ -2506,34 +2283,21 @@ document
 
 
 
-        /*
-           履歴をCSVへ
-        */
-
         history.forEach(
             function(item) {
 
 
                 rows.push([
 
-
                     item.no,
-
 
                     item.datetime,
 
-
-                    item.registeredName,
-
-
                     item.productName,
-
 
                     item.jan,
 
-
                     item.status
-
 
                 ]);
 
@@ -2543,7 +2307,7 @@ document
 
 
         /*
-           CSV作成
+           CSV化
         */
 
         const csv =
@@ -2555,24 +2319,23 @@ document
             .map(
                 function(row) {
 
-
                     return row
-
                         .map(
                             escapeCSV
                         )
-
                         .join(",");
 
                 }
             )
 
-            .join("\r\n");
+            .join(
+                "\r\n"
+            );
 
 
 
         /*
-           ファイル作成
+           ファイル生成
         */
 
         const blob =
@@ -2692,11 +2455,9 @@ document
         setTimeout(
             function() {
 
-
                 URL.revokeObjectURL(
                     url
                 );
-
 
             },
             1000
