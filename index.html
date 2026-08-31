@@ -13,7 +13,7 @@
 <title>JANチェッカー</title>
 
 <!-- バーコード読み取りライブラリ -->
-<script src="https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js"></script>
 
 <style>
 
@@ -334,6 +334,49 @@ button:disabled {
 }
 
 </style>
+
+
+<script>
+/*
+ * iPhone / Safari / Chrome 対応のZXingローダー
+ * 1つ目のCDNが読み込めない場合、2つ目へ切り替えます。
+ */
+(function () {
+  const cdns = [
+    "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js",
+    "https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js"
+  ];
+
+  function loadZXing(index) {
+    if (window.ZXingBrowser) {
+      window.dispatchEvent(new Event("zxingready"));
+      return;
+    }
+    if (index >= cdns.length) {
+      window.dispatchEvent(new CustomEvent("zxingerror", {
+        detail: "バーコード読み取りライブラリを読み込めませんでした。"
+      }));
+      return;
+    }
+
+    const s = document.createElement("script");
+    s.src = cdns[index];
+    s.onload = function () {
+      if (window.ZXingBrowser) {
+        window.dispatchEvent(new Event("zxingready"));
+      } else {
+        loadZXing(index + 1);
+      }
+    };
+    s.onerror = function () {
+      loadZXing(index + 1);
+    };
+    document.head.appendChild(s);
+  }
+
+  loadZXing(0);
+})();
+</script>
 
 </head>
 
@@ -1130,6 +1173,24 @@ function checkJAN(jan) {
 }
 
 
+</script>
+
+
+<script>
+/*
+ * カメラ互換性補助:
+ * HTTPS/localhostでのみカメラを使用し、iPhoneでは背面カメラを優先。
+ */
+(function () {
+  window.addEventListener("zxingerror", function () {
+    const msg = document.getElementById("errorMessage");
+    if (msg) msg.textContent = "バーコード読み取り機能を読み込めませんでした。ページを再読み込みしてください。";
+  });
+
+  window.addEventListener("zxingready", function () {
+    document.documentElement.classList.add("zxing-ready");
+  });
+})();
 </script>
 
 </body>
