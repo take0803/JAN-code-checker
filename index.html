@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>JANチェッカー</title>
+
+<!-- バーコード読み取りライブラリ -->
+<script src="https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js"></script>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+
+    margin: 0;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background: #f3f4f6;
+
+    color: #111827;
+}
+
+
+/* ヘッダー */
+
+header {
+
+    background: #1f2937;
+
+    color: white;
+
+    text-align: center;
+
+    padding: 18px;
+
+    font-size: 24px;
+
+    font-weight: bold;
+}
+
+
+/* メイン */
+
+main {
+
+    max-width: 600px;
+
+    margin: auto;
+
+    padding: 16px;
+}
+
+
+/* カード */
+
+.card {
+
+    background: white;
+
+    border-radius: 16px;
+
+    padding: 20px;
+
+    margin-bottom: 16px;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,0.08);
+}
+
+
+/* 見出し */
+
+h2 {
+
+    margin-top: 0;
+
+    font-size: 20px;
+}
+
+
+/* ファイルボタン */
+
+.file-button {
+
+    display: block;
+
+    width: 100%;
+
+    padding: 16px;
+
+    background: #2563eb;
+
+    color: white;
+
+    text-align: center;
+
+    border-radius: 12px;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+
+input[type="file"] {
+
+    display: none;
+}
+
+
+/* ステータス */
+
+.status {
+
+    margin-top: 14px;
+
+    padding: 14px;
+
+    background: #f3f4f6;
+
+    border-radius: 10px;
+}
+
+
+/* カメラ */
+
+#camera {
+
+    width: 100%;
+
+    border-radius: 14px;
+
+    background: black;
+
+    display: none;
+}
+
+
+/* ボタン */
+
+button {
+
+    width: 100%;
+
+    border: none;
+
+    border-radius: 12px;
+
+    padding: 16px;
+
+    margin-top: 10px;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    background: #111827;
+
+    color: white;
+}
+
+
+button:disabled {
+
+    opacity: 0.5;
+
+}
+
+
+/* 停止ボタン */
+
+.stop-button {
+
+    background: #dc2626;
+
+}
+
+
+/* 結果 */
+
+.result {
+
+    margin-top: 15px;
+
+    padding: 25px;
+
+    border-radius: 14px;
+
+    text-align: center;
+
+    font-size: 24px;
+
+    font-weight: bold;
+}
+
+
+.neutral {
+
+    background: #e5e7eb;
+
+    color: #374151;
+}
+
+
+.success {
+
+    background: #dcfce7;
+
+    color: #166534;
+}
+
+
+.error {
+
+    background: #fee2e2;
+
+    color: #991b1b;
+}
+
+
+/* JANコード */
+
+.jan-code {
+
+    margin-top: 10px;
+
+    font-size: 20px;
+
+    font-weight: normal;
+}
+
+
+/* スキャン枠 */
+
+.camera-container {
+
+    position: relative;
+
+}
+
+
+.scan-frame {
+
+    position: absolute;
+
+    left: 10%;
+
+    right: 10%;
+
+    top: 35%;
+
+    height: 30%;
+
+    border: 3px solid white;
+
+    border-radius: 10px;
+
+    pointer-events: none;
+
+}
+
+
+/* 件数 */
+
+.stats {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 8px;
+}
+
+
+.stat {
+
+    background: #f9fafb;
+
+    border-radius: 10px;
+
+    padding: 12px;
+
+    text-align: center;
+}
+
+
+.number {
+
+    font-size: 24px;
+
+    font-weight: bold;
+}
+
+
+.label {
+
+    font-size: 13px;
+
+    color: #6b7280;
+}
+
+
+/* 説明 */
+
+.description {
+
+    font-size: 14px;
+
+    color: #6b7280;
+
+    line-height: 1.6;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+JANチェッカー
+
+</header>
+
+
+<main>
+
+
+<!-- CSV -->
+
+<div class="card">
+
+<h2>
+
+① JANマスタを読み込む
+
+</h2>
+
+
+<label class="file-button">
+
+CSVファイルを選択
+
+<input
+    type="file"
+    id="csvFile"
+    accept=".csv,text/csv"
+>
+
+</label>
+
+
+<div
+    id="csvStatus"
+    class="status"
+>
+
+CSVが選択されていません
+
+</div>
+
+</div>
+
+
+
+<!-- カメラ -->
+
+<div class="card">
+
+<h2>
+
+② JANコードをスキャン
+
+</h2>
+
+
+<div class="camera-container">
+
+<video
+    id="camera"
+    autoplay
+    muted
+    playsinline
+></video>
+
+
+<div
+    id="scanFrame"
+    class="scan-frame"
+    style="display:none;"
+></div>
+
+</div>
+
+
+<button
+    id="startCamera"
+    disabled
+>
+
+📷 カメラを起動
+
+</button>
+
+
+<button
+    id="stopCamera"
+    class="stop-button"
+    style="display:none;"
+>
+
+カメラを停止
+
+</button>
+
+
+<div
+    id="result"
+    class="result neutral"
+>
+
+CSVを読み込んでください
+
+</div>
+
+
+<p class="description">
+
+バーコードを白い枠の中に合わせてください。
+
+<br>
+
+JAN-8、JAN-13に対応しています。
+
+</p>
+
+</div>
+
+
+
+<!-- 件数 -->
+
+<div class="card">
+
+<h2>
+
+読み取り状況
+
+</h2>
+
+
+<div class="stats">
+
+
+<div class="stat">
+
+<div
+    id="totalCount"
+    class="number"
+>
+
+0
+
+</div>
+
+<div class="label">
+
+登録JAN
+
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div
+    id="successCount"
+    class="number"
+>
+
+0
+
+</div>
+
+<div class="label">
+
+登録あり
+
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div
+    id="errorCount"
+    class="number"
+>
+
+0
+
+</div>
+
+<div class="label">
+
+登録なし
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+</main>
+
+
+
+<script>
+
+
+/* =========================
+   変数
+========================= */
+
+
+let janList = new Set();
+
+let successCount = 0;
+
+let errorCount = 0;
+
+let codeReader = null;
+
+let scanning = false;
+
+let lastJAN = "";
+
+let lastScanTime = 0;
+
+
+
+/* =========================
+   JANコード整理
+========================= */
+
+
+function normalizeJAN(value) {
+
+    value = String(value)
+        .trim()
+        .replace(/"/g, "")
+        .replace(/\D/g, "");
+
+
+    if (
+        value.length === 8 ||
+        value.length === 13
+    ) {
+
+        return value;
+
+    }
+
+
+    return null;
+
+}
+
+
+
+/* =========================
+   CSV読み込み
+========================= */
+
+
+document
+    .getElementById("csvFile")
+    .addEventListener(
+        "change",
+        function(event) {
+
+
+            const file =
+                event.target.files[0];
+
+
+            if (!file) {
+
+                return;
+
+            }
+
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function(e) {
+
+
+                    const text =
+                        e.target.result
+                            .replace(/^\uFEFF/, "");
+
+
+                    janList.clear();
+
+
+                    const rows =
+                        text.split(/\r?\n/);
+
+
+                    rows.forEach(
+                        function(row) {
+
+
+                            const columns =
+                                row.split(",");
+
+
+                            columns.forEach(
+                                function(column) {
+
+
+                                    const jan =
+                                        normalizeJAN(
+                                            column
+                                        );
+
+
+                                    if (jan) {
+
+                                        janList.add(
+                                            jan
+                                        );
+
+                                    }
+
+                                }
+                            );
+
+                        }
+                    );
+
+
+                    document
+                        .getElementById(
+                            "totalCount"
+                        )
+                        .textContent =
+                        janList.size
+                            .toLocaleString();
+
+
+                    document
+                        .getElementById(
+                            "csvStatus"
+                        )
+                        .textContent =
+                        "読み込み完了：" +
+                        janList.size
+                            .toLocaleString() +
+                        "件";
+
+
+                    document
+                        .getElementById(
+                            "startCamera"
+                        )
+                        .disabled =
+                        janList.size === 0;
+
+
+                    document
+                        .getElementById(
+                            "result"
+                        )
+                        .className =
+                        "result neutral";
+
+
+                    document
+                        .getElementById(
+                            "result"
+                        )
+                        .textContent =
+                        "カメラでJANコードをスキャンできます";
+
+
+                };
+
+
+            reader.readAsText(
+                file,
+                "UTF-8"
+            );
+
+        }
+    );
+
+
+
+/* =========================
+   カメラ開始
+========================= */
+
+
+document
+    .getElementById("startCamera")
+    .addEventListener(
+        "click",
+        startCamera
+    );
+
+
+
+async function startCamera() {
+
+
+    if (janList.size === 0) {
+
+        alert(
+            "先にJANマスタCSVを読み込んでください。"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        typeof ZXingBrowser ===
+        "undefined"
+    ) {
+
+        alert(
+            "バーコード読み取り機能を読み込めませんでした。"
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+
+        codeReader =
+            new ZXingBrowser.BrowserMultiFormatReader();
+
+
+        const video =
+            document.getElementById(
+                "camera"
+            );
+
+
+        video.style.display =
+            "block";
+
+
+        document
+            .getElementById(
+                "scanFrame"
+            )
+            .style.display =
+            "block";
+
+
+        document
+            .getElementById(
+                "startCamera"
+            )
+            .style.display =
+            "none";
+
+
+        document
+            .getElementById(
+                "stopCamera"
+            )
+            .style.display =
+            "block";
+
+
+        scanning = true;
+
+
+        await codeReader
+            .decodeFromConstraints(
+
+                {
+
+                    video: {
+
+                        facingMode:
+                            {
+                                ideal:
+                                "environment"
+                            },
+
+                        width:
+                            {
+                                ideal:
+                                1280
+                            },
+
+                        height:
+                            {
+                                ideal:
+                                720
+                            }
+
+                    }
+
+                },
+
+                video,
+
+                function(
+                    result,
+                    error
+                ) {
+
+
+                    if (
+                        !scanning ||
+                        !result
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    const rawCode =
+                        result.getText();
+
+
+                    const jan =
+                        normalizeJAN(
+                            rawCode
+                        );
+
+
+                    if (!jan) {
+
+                        return;
+
+                    }
+
+
+                    const now =
+                        Date.now();
+
+
+                    /*
+                       同じJANを
+                       1.5秒以内に
+                       連続判定しない
+                    */
+
+
+                    if (
+                        jan === lastJAN &&
+                        now - lastScanTime <
+                        1500
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    lastJAN = jan;
+
+                    lastScanTime = now;
+
+
+                    checkJAN(jan);
+
+                }
+
+            );
+
+
+    }
+
+    catch(error) {
+
+
+        console.error(error);
+
+
+        stopCamera();
+
+
+        alert(
+            "カメラを起動できませんでした。\n\n" +
+            "HTTPSでアクセスしているか、" +
+            "カメラの使用を許可しているか確認してください。"
+        );
+
+    }
+
+}
+
+
+
+/* =========================
+   カメラ停止
+========================= */
+
+
+document
+    .getElementById("stopCamera")
+    .addEventListener(
+        "click",
+        stopCamera
+    );
+
+
+
+function stopCamera() {
+
+
+    scanning = false;
+
+
+    if (codeReader) {
+
+        try {
+
+            codeReader.reset();
+
+        }
+
+        catch(error) {
+
+            console.log(error);
+
+        }
+
+    }
+
+
+    const video =
+        document.getElementById(
+            "camera"
+        );
+
+
+    if (video.srcObject) {
+
+        video.srcObject
+            .getTracks()
+            .forEach(
+                function(track) {
+
+                    track.stop();
+
+                }
+            );
+
+    }
+
+
+    video.srcObject = null;
+
+
+    video.style.display =
+        "none";
+
+
+    document
+        .getElementById(
+            "scanFrame"
+        )
+        .style.display =
+        "none";
+
+
+    document
+        .getElementById(
+            "startCamera"
+        )
+        .style.display =
+        "block";
+
+
+    document
+        .getElementById(
+            "stopCamera"
+        )
+        .style.display =
+        "none";
+
+}
+
+
+
+/* =========================
+   JAN判定
+========================= */
+
+
+function checkJAN(jan) {
+
+
+    const result =
+        document.getElementById(
+            "result"
+        );
+
+
+    if (janList.has(jan)) {
+
+
+        successCount++;
+
+
+        document
+            .getElementById(
+                "successCount"
+            )
+            .textContent =
+            successCount;
+
+
+        result.className =
+            "result success";
+
+
+        result.innerHTML =
+            "🟢 登録あり" +
+            '<div class="jan-code">' +
+            jan +
+            "</div>";
+
+
+        /*
+           成功時に軽く振動
+        */
+
+        if (
+            navigator.vibrate
+        ) {
+
+            navigator.vibrate(100);
+
+        }
+
+
+    }
+
+    else {
+
+
+        errorCount++;
+
+
+        document
+            .getElementById(
+                "errorCount"
+            )
+            .textContent =
+            errorCount;
+
+
+        result.className =
+            "result error";
+
+
+        result.innerHTML =
+            "🔴 登録なし" +
+            '<div class="jan-code">' +
+            jan +
+            "</div>";
+
+
+        /*
+           不一致時は
+           少し長く振動
+        */
+
+        if (
+            navigator.vibrate
+        ) {
+
+            navigator.vibrate(
+                [100, 80, 100]
+            );
+
+        }
+
+    }
+
+}
+
+
+</script>
+
+</body>
+
+</html>
