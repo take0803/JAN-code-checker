@@ -1,1198 +1,469 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>JANチェッカー</title>
 
-<!-- バーコード読み取りライブラリ -->
-<script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js"></script>
+<!--
+  バーコード読取ライブラリ。
+  旧版で使用していた ZXingBrowser のグローバル変数方式をやめ、
+  html5-qrcode を使用します。
+-->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <style>
-
-* {
-    box-sizing: border-box;
-}
-
+* { box-sizing: border-box; }
 body {
-
     margin: 0;
-
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background: #f3f4f6;
-
     color: #111827;
 }
-
-
-/* ヘッダー */
-
 header {
-
     background: #1f2937;
-
     color: white;
-
     text-align: center;
-
     padding: 18px;
-
     font-size: 24px;
-
     font-weight: bold;
 }
-
-
-/* メイン */
-
-main {
-
-    max-width: 600px;
-
-    margin: auto;
-
-    padding: 16px;
-}
-
-
-/* カード */
-
+main { max-width: 600px; margin: auto; padding: 16px; }
 .card {
-
     background: white;
-
     border-radius: 16px;
-
     padding: 20px;
-
     margin-bottom: 16px;
-
-    box-shadow:
-        0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
-
-
-/* 見出し */
-
-h2 {
-
-    margin-top: 0;
-
-    font-size: 20px;
-}
-
-
-/* ファイルボタン */
-
+h2 { margin-top: 0; font-size: 20px; }
 .file-button {
-
     display: block;
-
     width: 100%;
-
     padding: 16px;
-
     background: #2563eb;
-
     color: white;
-
     text-align: center;
-
     border-radius: 12px;
-
     font-size: 17px;
-
     font-weight: bold;
-
     cursor: pointer;
 }
-
-
-input[type="file"] {
-
-    display: none;
-}
-
-
-/* ステータス */
-
+input[type="file"] { display: none; }
 .status {
-
     margin-top: 14px;
-
     padding: 14px;
-
     background: #f3f4f6;
-
     border-radius: 10px;
+    word-break: break-word;
 }
-
-
-/* カメラ */
-
-#camera {
-
+#reader {
     width: 100%;
-
-    border-radius: 14px;
-
-    background: black;
-
     display: none;
+    overflow: hidden;
+    border-radius: 14px;
 }
-
-
-/* ボタン */
-
+#reader video {
+    width: 100% !important;
+    height: auto !important;
+    border-radius: 14px;
+}
 button {
-
     width: 100%;
-
     border: none;
-
     border-radius: 12px;
-
     padding: 16px;
-
     margin-top: 10px;
-
     font-size: 17px;
-
     font-weight: bold;
-
     cursor: pointer;
-
     background: #111827;
-
     color: white;
 }
-
-
-button:disabled {
-
-    opacity: 0.5;
-
-}
-
-
-/* 停止ボタン */
-
-.stop-button {
-
-    background: #dc2626;
-
-}
-
-
-/* 結果 */
-
+button:disabled { opacity: 0.5; }
+.stop-button { background: #dc2626; }
 .result {
-
     margin-top: 15px;
-
     padding: 25px;
-
     border-radius: 14px;
-
     text-align: center;
-
     font-size: 24px;
-
     font-weight: bold;
+    word-break: break-word;
 }
-
-
-.neutral {
-
-    background: #e5e7eb;
-
-    color: #374151;
-}
-
-
-.success {
-
-    background: #dcfce7;
-
-    color: #166534;
-}
-
-
-.error {
-
-    background: #fee2e2;
-
-    color: #991b1b;
-}
-
-
-/* JANコード */
-
-.jan-code {
-
-    margin-top: 10px;
-
-    font-size: 20px;
-
-    font-weight: normal;
-}
-
-
-/* スキャン枠 */
-
-.camera-container {
-
-    position: relative;
-
-}
-
-
-.scan-frame {
-
-    position: absolute;
-
-    left: 10%;
-
-    right: 10%;
-
-    top: 35%;
-
-    height: 30%;
-
-    border: 3px solid white;
-
-    border-radius: 10px;
-
-    pointer-events: none;
-
-}
-
-
-/* 件数 */
-
+.neutral { background: #e5e7eb; color: #374151; }
+.success { background: #dcfce7; color: #166534; }
+.error { background: #fee2e2; color: #991b1b; }
+.jan-code { margin-top: 10px; font-size: 20px; font-weight: normal; }
 .stats {
-
     display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
 }
-
-
 .stat {
-
     background: #f9fafb;
-
     border-radius: 10px;
-
     padding: 12px;
-
     text-align: center;
 }
-
-
-.number {
-
-    font-size: 24px;
-
-    font-weight: bold;
-}
-
-
-.label {
-
-    font-size: 13px;
-
-    color: #6b7280;
-}
-
-
-/* 説明 */
-
+.number { font-size: 24px; font-weight: bold; }
+.label { font-size: 13px; color: #6b7280; }
 .description {
-
     font-size: 14px;
-
     color: #6b7280;
-
     line-height: 1.6;
-
 }
-
+.debug {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    background: #f9fafb;
+    color: #6b7280;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
 </style>
-
-
-<script>
-/*
- * iPhone / Safari / Chrome 対応のZXingローダー
- * 1つ目のCDNが読み込めない場合、2つ目へ切り替えます。
- */
-(function () {
-  const cdns = [
-    "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js",
-    "https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js"
-  ];
-
-  function loadZXing(index) {
-    if (window.ZXingBrowser) {
-      window.dispatchEvent(new Event("zxingready"));
-      return;
-    }
-    if (index >= cdns.length) {
-      window.dispatchEvent(new CustomEvent("zxingerror", {
-        detail: "バーコード読み取りライブラリを読み込めませんでした。"
-      }));
-      return;
-    }
-
-    const s = document.createElement("script");
-    s.src = cdns[index];
-    s.onload = function () {
-      if (window.ZXingBrowser) {
-        window.dispatchEvent(new Event("zxingready"));
-      } else {
-        loadZXing(index + 1);
-      }
-    };
-    s.onerror = function () {
-      loadZXing(index + 1);
-    };
-    document.head.appendChild(s);
-  }
-
-  loadZXing(0);
-})();
-</script>
-
 </head>
 
-
 <body>
-
-
-<header>
-
-JANチェッカー
-
-</header>
-
+<header>JANチェッカー</header>
 
 <main>
+<div class="card">
+    <h2>① JANマスタを読み込む</h2>
 
+    <label class="file-button">
+        CSVファイルを選択
+        <input type="file" id="csvFile" accept=".csv,text/csv">
+    </label>
 
-<!-- CSV -->
+    <div id="csvStatus" class="status">CSVが選択されていません</div>
+</div>
 
 <div class="card">
+    <h2>② JANコードをスキャン</h2>
 
-<h2>
+    <div id="reader"></div>
 
-① JANマスタを読み込む
+    <button id="startCamera" disabled>📷 カメラを起動</button>
 
-</h2>
+    <button id="stopCamera" class="stop-button" style="display:none;">
+        カメラを停止
+    </button>
 
+    <div id="result" class="result neutral">
+        CSVを読み込んでください
+    </div>
 
-<label class="file-button">
+    <p class="description">
+        バーコードをカメラに映してください。<br>
+        JAN-8、JAN-13に対応しています。
+    </p>
 
-CSVファイルを選択
-
-<input
-    type="file"
-    id="csvFile"
-    accept=".csv,text/csv"
->
-
-</label>
-
-
-<div
-    id="csvStatus"
-    class="status"
->
-
-CSVが選択されていません
-
+    <div id="debug" class="debug" style="display:none;"></div>
 </div>
-
-</div>
-
-
-
-<!-- カメラ -->
 
 <div class="card">
+    <h2>読み取り状況</h2>
 
-<h2>
+    <div class="stats">
+        <div class="stat">
+            <div id="totalCount" class="number">0</div>
+            <div class="label">登録JAN</div>
+        </div>
 
-② JANコードをスキャン
+        <div class="stat">
+            <div id="successCount" class="number">0</div>
+            <div class="label">登録あり</div>
+        </div>
 
-</h2>
-
-
-<div class="camera-container">
-
-<video
-    id="camera"
-    autoplay
-    muted
-    playsinline
-></video>
-
-
-<div
-    id="scanFrame"
-    class="scan-frame"
-    style="display:none;"
-></div>
-
+        <div class="stat">
+            <div id="errorCount" class="number">0</div>
+            <div class="label">登録なし</div>
+        </div>
+    </div>
 </div>
-
-
-<button
-    id="startCamera"
-    disabled
->
-
-📷 カメラを起動
-
-</button>
-
-
-<button
-    id="stopCamera"
-    class="stop-button"
-    style="display:none;"
->
-
-カメラを停止
-
-</button>
-
-
-<div
-    id="result"
-    class="result neutral"
->
-
-CSVを読み込んでください
-
-</div>
-
-
-<p class="description">
-
-バーコードを白い枠の中に合わせてください。
-
-<br>
-
-JAN-8、JAN-13に対応しています。
-
-</p>
-
-</div>
-
-
-
-<!-- 件数 -->
-
-<div class="card">
-
-<h2>
-
-読み取り状況
-
-</h2>
-
-
-<div class="stats">
-
-
-<div class="stat">
-
-<div
-    id="totalCount"
-    class="number"
->
-
-0
-
-</div>
-
-<div class="label">
-
-登録JAN
-
-</div>
-
-</div>
-
-
-<div class="stat">
-
-<div
-    id="successCount"
-    class="number"
->
-
-0
-
-</div>
-
-<div class="label">
-
-登録あり
-
-</div>
-
-</div>
-
-
-<div class="stat">
-
-<div
-    id="errorCount"
-    class="number"
->
-
-0
-
-</div>
-
-<div class="label">
-
-登録なし
-
-</div>
-
-</div>
-
-
-</div>
-
-</div>
-
-
 </main>
 
-
-
 <script>
-
-
-/* =========================
-   変数
-========================= */
-
-
 let janList = new Set();
-
 let successCount = 0;
-
 let errorCount = 0;
-
-let codeReader = null;
-
+let scanner = null;
 let scanning = false;
-
 let lastJAN = "";
-
 let lastScanTime = 0;
 
-
-
-/* =========================
-   JANコード整理
-========================= */
-
-
 function normalizeJAN(value) {
-
-    value = String(value)
+    let s = String(value ?? "")
         .trim()
         .replace(/"/g, "")
-        .replace(/\D/g, "");
+        .replace(/\s/g, "");
 
-
-    if (
-        value.length === 8 ||
-        value.length === 13
-    ) {
-
-        return value;
-
+    // Excel等で 4901234567890.0 のようになっている場合にも対応
+    if (/^\d+\.0+$/.test(s)) {
+        s = s.split(".")[0];
     }
 
+    s = s.replace(/\D/g, "");
 
+    if (s.length === 8 || s.length === 13) return s;
     return null;
-
 }
 
+function setResult(text, type) {
+    const el = document.getElementById("result");
+    el.className = "result " + type;
+    el.innerHTML = text;
+}
 
+function setDebug(text) {
+    const el = document.getElementById("debug");
+    el.style.display = "block";
+    el.textContent = text;
+}
 
-/* =========================
-   CSV読み込み
-========================= */
+function isReaderLibraryReady() {
+    return typeof Html5Qrcode !== "undefined";
+}
 
+/* CSV読み込み */
+document.getElementById("csvFile").addEventListener("change", function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
 
-document
-    .getElementById("csvFile")
-    .addEventListener(
-        "change",
-        function(event) {
+    const reader = new FileReader();
 
+    reader.onload = function(e) {
+        const text = e.target.result.replace(/^\uFEFF/, "");
+        janList.clear();
 
-            const file =
-                event.target.files[0];
+        const rows = text.split(/\r?\n/);
 
+        rows.forEach(row => {
+            // 元アプリと同じく、CSV内の全セルから8桁/13桁の数字を探す
+            const columns = row.split(",");
+            columns.forEach(column => {
+                const jan = normalizeJAN(column);
+                if (jan) janList.add(jan);
+            });
+        });
 
-            if (!file) {
+        document.getElementById("totalCount").textContent =
+            janList.size.toLocaleString();
 
-                return;
+        document.getElementById("csvStatus").textContent =
+            "読み込み完了：" + janList.size.toLocaleString() + "件";
 
-            }
+        document.getElementById("startCamera").disabled = janList.size === 0;
 
+        setResult("カメラでJANコードをスキャンできます", "neutral");
+    };
 
-            const reader =
-                new FileReader();
+    reader.onerror = function() {
+        document.getElementById("csvStatus").textContent =
+            "CSVを読み込めませんでした";
+    };
 
+    reader.readAsText(file, "UTF-8");
+});
 
-            reader.onload =
-                function(e) {
-
-
-                    const text =
-                        e.target.result
-                            .replace(/^\uFEFF/, "");
-
-
-                    janList.clear();
-
-
-                    const rows =
-                        text.split(/\r?\n/);
-
-
-                    rows.forEach(
-                        function(row) {
-
-
-                            const columns =
-                                row.split(",");
-
-
-                            columns.forEach(
-                                function(column) {
-
-
-                                    const jan =
-                                        normalizeJAN(
-                                            column
-                                        );
-
-
-                                    if (jan) {
-
-                                        janList.add(
-                                            jan
-                                        );
-
-                                    }
-
-                                }
-                            );
-
-                        }
-                    );
-
-
-                    document
-                        .getElementById(
-                            "totalCount"
-                        )
-                        .textContent =
-                        janList.size
-                            .toLocaleString();
-
-
-                    document
-                        .getElementById(
-                            "csvStatus"
-                        )
-                        .textContent =
-                        "読み込み完了：" +
-                        janList.size
-                            .toLocaleString() +
-                        "件";
-
-
-                    document
-                        .getElementById(
-                            "startCamera"
-                        )
-                        .disabled =
-                        janList.size === 0;
-
-
-                    document
-                        .getElementById(
-                            "result"
-                        )
-                        .className =
-                        "result neutral";
-
-
-                    document
-                        .getElementById(
-                            "result"
-                        )
-                        .textContent =
-                        "カメラでJANコードをスキャンできます";
-
-
-                };
-
-
-            reader.readAsText(
-                file,
-                "UTF-8"
-            );
-
-        }
-    );
-
-
-
-/* =========================
-   カメラ開始
-========================= */
-
-
-document
-    .getElementById("startCamera")
-    .addEventListener(
-        "click",
-        startCamera
-    );
-
-
+/* カメラ開始 */
+document.getElementById("startCamera").addEventListener("click", startCamera);
 
 async function startCamera() {
-
-
     if (janList.size === 0) {
-
-        alert(
-            "先にJANマスタCSVを読み込んでください。"
-        );
-
+        alert("先にJANマスタCSVを読み込んでください。");
         return;
-
     }
 
-
-    if (
-        typeof ZXingBrowser ===
-        "undefined"
-    ) {
-
+    if (!isReaderLibraryReady()) {
         alert(
-            "バーコード読み取り機能を読み込めませんでした。"
+            "バーコード読み取り機能を読み込めませんでした。\n\n" +
+            "インターネット接続を確認して、ページを再読み込みしてください。"
         );
-
         return;
-
     }
 
+    if (!window.isSecureContext) {
+        alert(
+            "カメラを使用するにはHTTPS接続が必要です。\n\n" +
+            "GitHub PagesのURL（https://～）から開いてください。"
+        );
+        return;
+    }
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert(
+            "このブラウザではカメラ機能を利用できません。\n" +
+            "iPhoneではSafariまたはChromeの最新版を使用してください。"
+        );
+        return;
+    }
+
+    if (scanning) return;
 
     try {
+        scanner = new Html5Qrcode("reader");
 
+        document.getElementById("reader").style.display = "block";
+        document.getElementById("startCamera").style.display = "none";
+        document.getElementById("stopCamera").style.display = "block";
 
-        codeReader =
-            new ZXingBrowser.BrowserMultiFormatReader();
+        setResult("カメラを起動しています…", "neutral");
 
+        const config = {
+            fps: 10,
+            qrbox: { width: 280, height: 120 },
+            aspectRatio: 1.777778,
+            formatsToSupport: [
+                Html5QrcodeSupportedFormats.EAN_13,
+                Html5QrcodeSupportedFormats.EAN_8
+            ]
+        };
 
-        const video =
-            document.getElementById(
-                "camera"
-            );
-
-
-        video.style.display =
-            "block";
-
-
-        document
-            .getElementById(
-                "scanFrame"
-            )
-            .style.display =
-            "block";
-
-
-        document
-            .getElementById(
-                "startCamera"
-            )
-            .style.display =
-            "none";
-
-
-        document
-            .getElementById(
-                "stopCamera"
-            )
-            .style.display =
-            "block";
-
+        // facingModeを最初から指定せず、端末側のカメラ選択を使う。
+        // iPhoneでenvironment指定が原因になるケースを避ける。
+        await scanner.start(
+            { facingMode: "environment" },
+            config,
+            onScanSuccess,
+            onScanFailure
+        );
 
         scanning = true;
+        setResult("バーコードをカメラに映してください", "neutral");
 
+    } catch (error) {
+        console.error("camera start error:", error);
 
-        await codeReader
-            .decodeFromConstraints(
-
-                {
-
-                    video: {
-
-                        facingMode:
-                            {
-                                ideal:
-                                "environment"
-                            },
-
-                        width:
-                            {
-                                ideal:
-                                1280
-                            },
-
-                        height:
-                            {
-                                ideal:
-                                720
-                            }
-
-                    }
-
-                },
-
-                video,
-
-                function(
-                    result,
-                    error
-                ) {
-
-
-                    if (
-                        !scanning ||
-                        !result
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    const rawCode =
-                        result.getText();
-
-
-                    const jan =
-                        normalizeJAN(
-                            rawCode
-                        );
-
-
-                    if (!jan) {
-
-                        return;
-
-                    }
-
-
-                    const now =
-                        Date.now();
-
-
-                    /*
-                       同じJANを
-                       1.5秒以内に
-                       連続判定しない
-                    */
-
-
-                    if (
-                        jan === lastJAN &&
-                        now - lastScanTime <
-                        1500
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    lastJAN = jan;
-
-                    lastScanTime = now;
-
-
-                    checkJAN(jan);
-
-                }
-
-            );
-
-
-    }
-
-    catch(error) {
-
-
-        console.error(error);
-
-
-        stopCamera();
-
-
-        alert(
-            "カメラを起動できませんでした。\n\n" +
-            "HTTPSでアクセスしているか、" +
-            "カメラの使用を許可しているか確認してください。"
-        );
-
-    }
-
-}
-
-
-
-/* =========================
-   カメラ停止
-========================= */
-
-
-document
-    .getElementById("stopCamera")
-    .addEventListener(
-        "click",
-        stopCamera
-    );
-
-
-
-function stopCamera() {
-
-
-    scanning = false;
-
-
-    if (codeReader) {
+        scanning = false;
 
         try {
+            if (scanner) await scanner.clear();
+        } catch (e) {}
 
-            codeReader.reset();
+        scanner = null;
 
-        }
+        document.getElementById("reader").style.display = "none";
+        document.getElementById("startCamera").style.display = "block";
+        document.getElementById("stopCamera").style.display = "none";
 
-        catch(error) {
+        let detail = "";
+        if (error && error.message) detail = error.message;
+        else detail = String(error);
 
-            console.log(error);
-
-        }
-
-    }
-
-
-    const video =
-        document.getElementById(
-            "camera"
+        setDebug(
+            "カメラ起動エラー:\n" +
+            detail +
+            "\n\nURL: " + location.href +
+            "\nHTTPS: " + location.protocol +
+            "\nSecure Context: " + window.isSecureContext
         );
 
-
-    if (video.srcObject) {
-
-        video.srcObject
-            .getTracks()
-            .forEach(
-                function(track) {
-
-                    track.stop();
-
-                }
+        if (String(detail).toLowerCase().includes("permission")) {
+            alert(
+                "カメラへのアクセスが許可されていません。\n\n" +
+                "iPhoneの「設定」→「Safari（またはChrome）」→カメラの設定を確認してください。"
             );
-
+        } else {
+            alert(
+                "カメラを起動できませんでした。\n\n" +
+                "ブラウザのカメラ許可と、HTTPSでアクセスしていることを確認してください。\n\n" +
+                "詳細は画面下のエラー情報に表示しています。"
+            );
+        }
     }
-
-
-    video.srcObject = null;
-
-
-    video.style.display =
-        "none";
-
-
-    document
-        .getElementById(
-            "scanFrame"
-        )
-        .style.display =
-        "none";
-
-
-    document
-        .getElementById(
-            "startCamera"
-        )
-        .style.display =
-        "block";
-
-
-    document
-        .getElementById(
-            "stopCamera"
-        )
-        .style.display =
-        "none";
-
 }
 
+function onScanSuccess(decodedText) {
+    if (!scanning) return;
 
+    const jan = normalizeJAN(decodedText);
+    if (!jan) return;
 
-/* =========================
-   JAN判定
-========================= */
+    const now = Date.now();
 
+    if (jan === lastJAN && now - lastScanTime < 1500) return;
+
+    lastJAN = jan;
+    lastScanTime = now;
+
+    checkJAN(jan);
+}
+
+function onScanFailure(errorMessage) {
+    // 読み取り中の「見つからない」は通常の状態なので表示しない
+}
 
 function checkJAN(jan) {
-
-
-    const result =
-        document.getElementById(
-            "result"
-        );
-
-
     if (janList.has(jan)) {
-
-
         successCount++;
 
+        document.getElementById("successCount").textContent =
+            successCount.toLocaleString();
 
-        document
-            .getElementById(
-                "successCount"
-            )
-            .textContent =
-            successCount;
-
-
-        result.className =
-            "result success";
-
-
-        result.innerHTML =
-            "🟢 登録あり" +
-            '<div class="jan-code">' +
-            jan +
-            "</div>";
-
-
-        /*
-           成功時に軽く振動
-        */
-
-        if (
-            navigator.vibrate
-        ) {
-
-            navigator.vibrate(100);
-
-        }
-
-
-    }
-
-    else {
-
-
+        setResult(
+            "✅ 登録あり<div class='jan-code'>" + jan + "</div>",
+            "success"
+        );
+    } else {
         errorCount++;
 
+        document.getElementById("errorCount").textContent =
+            errorCount.toLocaleString();
 
-        document
-            .getElementById(
-                "errorCount"
-            )
-            .textContent =
-            errorCount;
-
-
-        result.className =
-            "result error";
-
-
-        result.innerHTML =
-            "🔴 登録なし" +
-            '<div class="jan-code">' +
-            jan +
-            "</div>";
-
-
-        /*
-           不一致時は
-           少し長く振動
-        */
-
-        if (
-            navigator.vibrate
-        ) {
-
-            navigator.vibrate(
-                [100, 80, 100]
-            );
-
-        }
-
+        setResult(
+            "❌ 登録なし<div class='jan-code'>" + jan + "</div>",
+            "error"
+        );
     }
-
 }
 
+/* カメラ停止 */
+document.getElementById("stopCamera").addEventListener("click", stopCamera);
 
-</script>
+async function stopCamera() {
+    scanning = false;
 
+    if (scanner) {
+        try {
+            await scanner.stop();
+        } catch (e) {
+            console.log(e);
+        }
 
-<script>
+        try {
+            await scanner.clear();
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    scanner = null;
+
+    document.getElementById("reader").style.display = "none";
+    document.getElementById("startCamera").style.display = "block";
+    document.getElementById("stopCamera").style.display = "none";
+
+    setResult("カメラを停止しました", "neutral");
+}
+
 /*
- * カメラ互換性補助:
- * HTTPS/localhostでのみカメラを使用し、iPhoneでは背面カメラを優先。
+ * ページを開いた時点でライブラリが読み込めているか確認。
+ * これにより、今回のような「読み込めませんでした」の原因を切り分けやすくする。
  */
-(function () {
-  window.addEventListener("zxingerror", function () {
-    const msg = document.getElementById("errorMessage");
-    if (msg) msg.textContent = "バーコード読み取り機能を読み込めませんでした。ページを再読み込みしてください。";
-  });
-
-  window.addEventListener("zxingready", function () {
-    document.documentElement.classList.add("zxing-ready");
-  });
-})();
+window.addEventListener("load", function() {
+    setTimeout(function() {
+        if (!isReaderLibraryReady()) {
+            setDebug(
+                "バーコードライブラリを読み込めませんでした。\n\n" +
+                "ページ: " + location.href
+            );
+        }
+    }, 1500);
+});
 </script>
-
 </body>
-
 </html>
